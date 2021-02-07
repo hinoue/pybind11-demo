@@ -39,9 +39,20 @@ PYBIND11_MODULE(example, m) {
         .def("get_name", &Pet::get_name);
 }
 
-llvm::Expected<clang::tooling::CommonOptionsParser> create(int &argc, const char ** argv, llvm::cl::OptionCategory &optionCategory) {
-    return llvm::cl::OptionCategory::create(argc, argv, optionCategory);
+lvm::Expected<clang::tooling::CommonOptionsParser> create(std::vector<std::string> args, llvm::cl::OptionCategory &optionCategory) {
+    // Convert into array that can be manipulated
+    int tmp_size = args.size();
+    const char** tmp_args = (const char**)malloc(sizeof(char*)*tmp_size);
+    for(int i=0; i < tmp_size; i++) {
+        tmp_args[i] = args[i].c_str();
+    }
+    //llvm::Expected<clang::tooling::CommonOptionsParser> ret = clang::tooling::CommonOptionsParser::create(tmp_size, tmp_args, optionCategory, llvm::cl::Optional, NULL);
+    llvm::Expected<clang::tooling::CommonOptionsParser> ret = clang::tooling::CommonOptionsParser::create(tmp_size, tmp_args, optionCategory,(llvm::cl::NumOccurrencesFlag)0, NULL);
+
+    // TODO: Empty the array and push it back to args
+    return ret;
 }
+
 
 PYBIND11_MODULE(tooling, m) {
     using namespace clang::tooling;
