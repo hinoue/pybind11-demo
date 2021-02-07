@@ -38,3 +38,18 @@ PYBIND11_MODULE(example, m) {
         .def("get_hunger", &Pet::get_hunger)
         .def("get_name", &Pet::get_name);
 }
+
+llvm::Expected<clang::tooling::CommonOptionsParser> create(int &argc, const char ** argv, llvm::cl::OptionCategory &optionCategory) {
+    return llvm::cl::OptionCategory::create(argc, argv, optionCategory);
+}
+
+PYBIND11_MODULE(tooling, m) {
+    using namespace clang::tooling;
+    m.doc() = "pybind11 libtooling plugin";
+    py::class_<llvm::cl::OptionCategory>(m, "OptionCategory")
+        .def(py::init<const std::string &>());
+    py::class_<llvm::Expected<CommonOptionsParser>>(m, "ExpectedCommonOptionsParser");
+    py::class_<CommonOptionsParser>(m, "CommonOptionsParser")
+        .def("create", (llvm::Expected<CommonOptionsParser> (*) (int &, const char **, llvm::cl::OptionCategory &)) &create);
+    //    .def_static("create", py::overload_cast<int &, const char **, llvm::cl::OptionCategory &, llvm::cl::NumOccurrencesFlag, const char *>(&CommonOptionsParser::create));
+}
